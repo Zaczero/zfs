@@ -1239,6 +1239,12 @@ dsl_errorscrub_done(dsl_scan_t *scn, boolean_t complete, dmu_tx_t *tx)
 	scn->errorscrub_phys.dep_end_time = gethrestime_sec();
 	zap_cursor_fini(&scn->errorscrub_cursor);
 
+	if (complete) {
+		spa_config_enter(spa, SCL_STATE, FTAG, RW_READER);
+		dsl_scan_assess_vdev(dp, spa->spa_root_vdev, B_FALSE);
+		spa_config_exit(spa, SCL_STATE, FTAG);
+	}
+
 	if (spa->spa_errata == ZPOOL_ERRATA_ZOL_2094_SCRUB)
 		spa->spa_errata = 0;
 
@@ -1357,6 +1363,12 @@ dsl_scan_done(dsl_scan_t *scn, dsl_scan_done_reason_t reason, dmu_tx_t *tx)
 			} else {
 				spa_event_notify(spa, NULL, NULL,
 				    ESC_ZFS_SCRUB_FINISH);
+				/*
+				 * Reopening for a scrub can return a dirty
+				 * device without scheduling healing.
+				 */
+				dsl_scan_assess_vdev(dp, spa->spa_root_vdev,
+				    B_FALSE);
 			}
 		}
 		/*
