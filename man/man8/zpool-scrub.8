@@ -18,7 +18,7 @@
 .\" Copyright (c) 2017 Open-E, Inc. All Rights Reserved.
 .\" Copyright (c) 2025 Hewlett Packard Enterprise Development LP.
 .\"
-.Dd May 1, 2026
+.Dd September 16, 2026
 .Dt ZPOOL-SCRUB 8
 .Os
 .
@@ -66,15 +66,15 @@ The
 command reports the progress of the scrub and summarizes the results of the
 scrub upon completion.
 .Pp
-Scrubbing and resilvering are very similar operations.
-The difference is that resilvering only examines data that ZFS knows to be out
-of date
+A scrub and a healing resilver perform similar logical traversal, but serve
+different purposes.
+A healing resilver only examines data that ZFS knows to be out of date
 .Po
 for example, when attaching a new device to a mirror or replacing an existing
 device
 .Pc ,
-whereas scrubbing examines all data to discover silent errors due to hardware
-faults or disk failure.
+whereas a scrub verifies its requested scope to discover silent errors due to
+hardware faults or disk failure.
 .Pp
 When scrubbing a pool with encrypted filesystems the keys do not need to be
 loaded for ordinary checksum verification but are needed for thorough scrub
@@ -98,6 +98,11 @@ If a scrub is paused, the
 resumes it.
 If a resilver is in progress, ZFS does not allow a scrub to be started until the
 resilver completes.
+If a device needs resilvering and is available for repair, a new scrub request
+fails with a busy error and healing is scheduled first.
+Run
+.Nm zpool Cm scrub
+again after the resilver completes to verify the pool.
 .Pp
 Note that, due to changes in pool data on a live system, it is possible for
 scrubs and resilvers to progress beyond 100% completion.

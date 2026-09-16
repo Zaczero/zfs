@@ -117,9 +117,8 @@ static uint64_t zfs_rebuild_max_segment = 1024 * 1024;
 static uint64_t zfs_rebuild_vdev_limit = 64 << 20;
 
 /*
- * Automatically start a pool scrub when the last active sequential resilver
- * completes in order to verify the checksums of all blocks which have been
- * resilvered. This option is enabled by default and is strongly recommended.
+ * Attempt checksum verification when the last sequential resilver completes.
+ * A scrub blocked by other scanning work is not queued for later.
  */
 static int zfs_rebuild_scrub_enabled = 1;
 
@@ -340,8 +339,8 @@ vdev_rebuild_complete_sync(void *arg, dmu_tx_t *tx)
 		.txgstart = 0,
 		.txgend = 0,
 	};
-	if (dsl_scan_setup_check(&setup_sync_arg.func, tx) == 0 &&
-	    zfs_rebuild_scrub_enabled) {
+	if (zfs_rebuild_scrub_enabled &&
+	    dsl_scan_setup_check(&setup_sync_arg, tx) == 0) {
 		dsl_scan_setup_sync(&setup_sync_arg, tx);
 	}
 

@@ -10629,6 +10629,7 @@ spa_sync_config_object(spa_t *spa, dmu_tx_t *tx)
 
 	config = spa_config_generate(spa, spa->spa_root_vdev,
 	    dmu_tx_get_txg(tx), B_FALSE);
+	dsl_scan_sync_config(spa->spa_dsl_pool, tx);
 
 	/*
 	 * If we're upgrading the spa version then make sure that

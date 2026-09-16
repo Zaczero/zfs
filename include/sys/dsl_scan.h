@@ -54,7 +54,7 @@ typedef struct dsl_scan_phys {
 	uint64_t scn_examined; /* bytes scanned so far */
 	uint64_t scn_skipped;	/* bytes skipped by scanner */
 	uint64_t scn_processed;
-	uint64_t scn_errors;	/* scan I/O error count */
+	uint64_t scn_errors;	/* scan I/O and coverage errors */
 	uint64_t scn_ddt_class_max;
 	ddt_bookmark_t scn_ddt_bookmark;
 	zbookmark_phys_t scn_bookmark;
@@ -141,6 +141,7 @@ typedef struct dsl_scan {
 	boolean_t scn_clearing;		/* scan is issuing sequential extents */
 	boolean_t scn_checkpointing;	/* scan is issuing all queued extents */
 	boolean_t scn_suspending;	/* scan is suspending until next txg */
+	boolean_t scn_dtl_valid;	/* complete healing coverage */
 	uint64_t scn_last_checkpoint;	/* time of last checkpoint */
 
 	/* members for thread synchronization */
@@ -194,10 +195,13 @@ int dsl_scan_setup_check(void *, dmu_tx_t *);
 void dsl_scan_setup_sync(void *, dmu_tx_t *);
 void dsl_scan_fini(struct dsl_pool *dp);
 void dsl_scan_sync(struct dsl_pool *, dmu_tx_t *);
+void dsl_scan_sync_config(struct dsl_pool *, dmu_tx_t *);
 int dsl_scan_cancel(struct dsl_pool *);
 int dsl_scan(struct dsl_pool *, pool_scan_func_t, uint64_t starttxg,
     uint64_t txgend, dsl_scan_flags_t flags);
-void dsl_scan_assess_vdev(struct dsl_pool *dp, vdev_t *vd);
+void dsl_scan_assess_vdev(struct dsl_pool *dp, vdev_t *vd,
+    boolean_t newly_available);
+void dsl_scan_count_error(dsl_scan_t *scn, boolean_t dtl_accounted);
 boolean_t dsl_scan_scrubbing(const struct dsl_pool *dp);
 boolean_t dsl_errorscrubbing(const struct dsl_pool *dp);
 boolean_t dsl_errorscrub_active(dsl_scan_t *scn);

@@ -17,7 +17,7 @@
 .\" Copyright 2017 Nexenta Systems, Inc.
 .\" Copyright (c) 2017 Open-E, Inc. All Rights Reserved.
 .\"
-.Dd May 9, 2026
+.Dd September 15, 2026
 .Dt ZPOOL-ATTACH 8
 .Os
 .
@@ -95,8 +95,12 @@ space than is expected may be reported for newly-written blocks, according to
 .Nm ls Fl s ,
 and similar tools.
 .Pp
-A pool-wide scrub is initiated at the end of the expansion in order to verify
-the checksums of all blocks which have been copied during the expansion.
+At the end of the expansion, ZFS attempts to start a pool-wide scrub to verify
+the checksums of the copied blocks.
+If another scrub or resilver prevents verification from starting, it is not
+queued for later; run
+.Nm zpool Cm scrub
+after that work completes.
 .Bl -tag -width Ds
 .It Fl f
 Forces use of
@@ -114,8 +118,13 @@ The only property supported at the moment is
 When attaching to a mirror or plain vdev, the
 .Ar new_device
 is reconstructed sequentially to restore redundancy as quickly as possible.
-Checksums are not verified during sequential reconstruction so a scrub is
-started when the resilver completes.
+Checksums are not verified during sequential reconstruction.
+When it completes, ZFS attempts to start a scrub to verify the reconstructed
+data.
+If another scrub or resilver prevents verification from starting, it is not
+queued for later; run
+.Nm zpool Cm scrub
+after that work completes.
 .It Fl w
 Waits until
 .Ar new_device

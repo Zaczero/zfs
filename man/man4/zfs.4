@@ -16,7 +16,7 @@
 .\" Copyright (c) 2026, Mateusz Piotrowski <0mp@FreeBSD.org>
 .\" Copyright (c) 2026, TrueNAS.
 .\"
-.Dd September 9, 2026
+.Dd September 16, 2026
 .Dt ZFS 4
 .Os
 .
@@ -2246,9 +2246,11 @@ Maximum read segment size to issue when sequentially resilvering a
 top-level vdev.
 .
 .It Sy zfs_rebuild_scrub_enabled Ns = Ns Sy 1 Ns | Ns 0 Pq int
-Automatically start a pool scrub when the last active sequential resilver
-completes in order to verify the checksums of all blocks which have been
-resilvered.
+Automatically attempt to start a pool scrub when the last active sequential
+resilver completes in order to verify the checksums of all blocks which have
+been resilvered.
+If another scrub or resilver prevents verification from starting, the scrub is
+skipped and is not queued for later.
 This is enabled by default and strongly recommended.
 .
 .It Sy zfs_rebuild_vdev_limit Ns = Ns Sy 67108864 Ns B Po 64 MiB Pc Pq u64
@@ -2309,16 +2311,21 @@ While resilvering, it will spend at least this much time
 working on a resilver between TXG flushes.
 .
 .It Sy zfs_scan_ignore_errors Ns = Ns Sy 0 Ns | Ns 1 Pq int
-If set, remove the DTL (dirty time list) upon completion of a pool scan (scrub),
-even if there were unrepairable errors.
-Intended to be used during pool repair or recovery to
-stop resilvering when the pool is next imported.
+Allow a healing resilver to clear missing DTL (dirty time log) ranges despite
+scan errors or incomplete coverage, and allow sequential reconstruction to do
+so despite rebuild errors.
+This recovery override can mark unrepaired data as current and permit an
+incomplete replacement to detach its original device.
+It does not give a scrub authority to clear missing data, and healing error
+counts remain available for diagnosis.
 .
 .It Sy zfs_scrub_after_expand Ns = Ns Sy 1 Ns | Ns 0 Pq int
-Automatically start a pool scrub after a RAIDZ expansion completes
+Automatically attempt to start a pool scrub after a RAIDZ expansion completes
 in order to verify the checksums of all blocks which have been
 copied during the expansion.
 This is enabled by default and strongly recommended.
+If another scrub or resilver prevents verification from starting, the scrub is
+skipped and is not queued for later.
 .
 .It Sy zfs_scrub_min_time_ms Ns = Ns Sy 750 Ns ms Pq uint
 Scrubs are processed by the sync thread.

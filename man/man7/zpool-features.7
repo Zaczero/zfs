@@ -16,7 +16,7 @@
 .\" Copyright (c) 2019, Allan Jude
 .\" Copyright (c) 2021, Colm Buckley <colm@tuatha.org>
 .\"
-.Dd July 23, 2025
+.Dd September 16, 2026
 .Dt ZPOOL-FEATURES 7
 .Os
 .
@@ -453,15 +453,22 @@ commands to perform sequential reconstruction
 .Pq instead of healing reconstruction
 when resilvering.
 .Pp
-Sequential reconstruction resilvers a device in LBA order without immediately
-verifying the checksums.
-Once complete, a scrub is started, which then verifies the checksums.
+Sequential reconstruction resilvers a device in LBA order without verifying
+the checksums.
+Checksum verification requires a subsequent scrub.
 This approach allows full redundancy to be restored to the pool
 in the minimum amount of time.
 This two-phase approach will take longer than a healing resilver
 when the time to verify the checksums is included.
 However, unless there is additional pool damage,
 no checksum errors should be reported by the scrub.
+.Pp
+ZFS attempts to start that scrub when reconstruction completes.
+If another scrub or resilver prevents verification from starting, it is not
+queued for later; run
+.Nm zpool Cm scrub
+after that work completes.
+.Pp
 This feature is incompatible with raidz configurations.
 .
 This feature becomes

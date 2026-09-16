@@ -389,10 +389,8 @@ static unsigned long raidz_expand_max_copy_bytes = 10 * SPA_MAXBLOCKSIZE;
 static unsigned long raidz_io_aggregate_rows = 4;
 
 /*
- * Automatically start a pool scrub when a RAIDZ expansion completes in
- * order to verify the checksums of all blocks which have been copied
- * during the expansion.  Automatic scrubbing is enabled by default and
- * is strongly recommended.
+ * Attempt checksum verification when expansion completes.
+ * A scrub blocked by other scanning work is not queued for later.
  */
 static int zfs_scrub_after_expand = 1;
 
@@ -4277,7 +4275,7 @@ raidz_reflow_complete_sync(void *arg, dmu_tx_t *tx)
 		.txgend = 0,
 	};
 	if (zfs_scrub_after_expand &&
-	    dsl_scan_setup_check(&setup_sync_arg.func, tx) == 0) {
+	    dsl_scan_setup_check(&setup_sync_arg, tx) == 0) {
 		dsl_scan_setup_sync(&setup_sync_arg, tx);
 	}
 }
