@@ -959,10 +959,11 @@ tags = ['functional', 'refreserv']
 
 [tests/functional/removal]
 pre =
-tests = ['indirect_reconstruct', 'removal_all_vdev', 'removal_cancel',
-    'removal_check_space', 'removal_condense_export',
-    'removal_indirect_class', 'removal_multiple_indirection',
-    'removal_nopwrite', 'removal_remap_deadlists', 'removal_reservation',
+tests = ['indirect_checksum_off', 'indirect_reconstruct', 'indirect_repair',
+    'removal_all_vdev', 'removal_cancel', 'removal_check_space',
+    'removal_condense_export', 'removal_indirect_class',
+    'removal_multiple_indirection', 'removal_nopwrite',
+    'removal_remap_deadlists', 'removal_reservation',
     'removal_resume_export', 'removal_sanity', 'removal_with_add',
     'removal_with_create_fs', 'removal_with_dedup',
     'removal_with_errors', 'removal_with_export', 'removal_with_faulted',
