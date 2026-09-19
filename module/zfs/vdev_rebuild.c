@@ -168,6 +168,32 @@ vdev_rebuild_should_cancel(vdev_t *vd)
 }
 
 /*
+ * A rebuild repairs only the devices being rebuilt, but it reads from any
+ * readable child without verifying checksums. A writable leaf which is
+ * missing data and is not being rebuilt may have supplied stale data.
+ */
+static boolean_t
+vdev_rebuild_stale_source(vdev_t *vd)
+{
+	if (!vd->vdev_ops->vdev_op_leaf) {
+		for (uint64_t c = 0; c < vd->vdev_children; c++) {
+			if (vdev_rebuild_stale_source(vd->vdev_child[c]))
+				return (B_TRUE);
+		}
+		return (B_FALSE);
+	}
+
+	if (vd->vdev_rebuild_txg != 0 || !vdev_writeable(vd))
+		return (B_FALSE);
+
+	mutex_enter(&vd->vdev_dtl_lock);
+	boolean_t stale = !zfs_range_tree_is_empty(vd->vdev_dtl[DTL_MISSING]);
+	mutex_exit(&vd->vdev_dtl_lock);
+
+	return (stale);
+}
+
+/*
  * The sync task for updating the on-disk state of a rebuild.  This is
  * scheduled by vdev_rebuild_range().
  */
@@ -307,6 +333,8 @@ vdev_rebuild_complete_sync(void *arg, dmu_tx_t *tx)
 
 	vrp->vrp_rebuild_state = VDEV_REBUILD_COMPLETE;
 	vrp->vrp_end_time = gethrestime_sec();
+	if (vdev_rebuild_stale_source(vd))
+		vrp->vrp_errors++;
 
 	VERIFY0(zap_update(vd->vdev_spa->spa_meta_objset, vd->vdev_top_zap,
 	    VDEV_TOP_ZAP_VDEV_REBUILD_PHYS, sizeof (uint64_t),
@@ -315,9 +343,10 @@ vdev_rebuild_complete_sync(void *arg, dmu_tx_t *tx)
 	vdev_dtl_reassess(vd, tx->tx_txg, vrp->vrp_max_txg, B_TRUE, B_TRUE);
 	spa_feature_decr(vd->vdev_spa, SPA_FEATURE_DEVICE_REBUILD, tx);
 
-	spa_history_log_internal(spa, "rebuild",  tx,
-	    "vdev_id=%llu vdev_guid=%llu complete",
-	    (u_longlong_t)vd->vdev_id, (u_longlong_t)vd->vdev_guid);
+	spa_history_log_internal(spa, "rebuild", tx,
+	    "vdev_id=%llu vdev_guid=%llu errors=%llu complete",
+	    (u_longlong_t)vd->vdev_id, (u_longlong_t)vd->vdev_guid,
+	    (u_longlong_t)vrp->vrp_errors);
 	vdev_rebuild_log_notify(spa, vd, ESC_ZFS_RESILVER_FINISH);
 
 	/* Handles detaching of spares */
@@ -398,6 +427,9 @@ vdev_rebuild_reset_sync(void *arg, dmu_tx_t *tx)
 	ASSERT(vrp->vrp_rebuild_state == VDEV_REBUILD_ACTIVE);
 	ASSERT0P(vd->vdev_rebuild_thread);
 
+	/* A full reset revisits every segment; an import/resume does not. */
+	uint64_t errors = vrp->vrp_errors;
+	vrp->vrp_errors = 0;
 	vrp->vrp_last_offset = 0;
 	vrp->vrp_min_txg = TXG_INITIAL;
 	vrp->vrp_max_txg = dmu_tx_get_txg(tx);
@@ -415,9 +447,10 @@ vdev_rebuild_reset_sync(void *arg, dmu_tx_t *tx)
 	    VDEV_TOP_ZAP_VDEV_REBUILD_PHYS, sizeof (uint64_t),
 	    REBUILD_PHYS_ENTRIES, vrp, tx));
 
-	spa_history_log_internal(spa, "rebuild",  tx,
-	    "vdev_id=%llu vdev_guid=%llu reset",
-	    (u_longlong_t)vd->vdev_id, (u_longlong_t)vd->vdev_guid);
+	spa_history_log_internal(spa, "rebuild", tx,
+	    "vdev_id=%llu vdev_guid=%llu errors=%llu reset",
+	    (u_longlong_t)vd->vdev_id, (u_longlong_t)vd->vdev_guid,
+	    (u_longlong_t)errors);
 
 	vd->vdev_rebuild_reset_wanted = B_FALSE;
 	ASSERT(vd->vdev_rebuilding);
@@ -484,9 +517,14 @@ vdev_rebuild_cb(zio_t *zio)
 		 */
 		uint64_t *off = &vr->vr_scan_offset[zio->io_txg & TXG_MASK];
 		*off = MIN(*off, zio->io_offset);
-	} else if (zio->io_error) {
+	} else if (zio->io_error ||
+	    (zio->io_post & ZIO_POST_REBUILD_ERROR)) {
+		/* Failed reads and repairs count once per segment. */
 		vrp->vrp_errors++;
 	}
+
+	/* This result belongs to the rebuild, not the containing txg. */
+	zio->io_post &= ~ZIO_POST_REBUILD_ERROR;
 
 	abd_free(zio->io_abd);
 

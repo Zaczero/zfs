@@ -433,12 +433,14 @@ typedef zio_t *zio_pipe_stage_t(zio_t *zio);
  * consider or perform on behalf of a child. They are distinct from io_flags
  * because the child must be able to propagate them to the parent. The normal
  * io_flags are local to the zio, not protected by any lock, and not modifiable
- * by children; the reexecute flags are protected by io_lock, modifiable by
+ * by children; the io_post flags are protected by io_lock, modifiable by
  * children, and always propagated -- even when ZIO_FLAG_DONT_PROPAGATE is set.
  */
 #define	ZIO_POST_REEXECUTE	(1 << 0)
 #define	ZIO_POST_SUSPEND	(1 << 1)
 #define	ZIO_POST_DIO_CHKSUM_ERR	(1 << 2)
+/* Incomplete reconstruction, consumed by vdev_rebuild_cb(). */
+#define	ZIO_POST_REBUILD_ERROR	(1 << 3)
 
 /*
  * The io_trim flags are used to specify the type of TRIM to perform.  They

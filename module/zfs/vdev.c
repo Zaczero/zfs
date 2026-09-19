@@ -3323,6 +3323,10 @@ vdev_dtl_should_excise(vdev_t *vd, boolean_t rebuild_done)
 	if (vd->vdev_state < VDEV_STATE_DEGRADED)
 		return (B_FALSE);
 
+	/* A failed probe can set cant_write before the vdev state changes. */
+	if (rebuild_done && !vdev_writeable(vd))
+		return (B_FALSE);
+
 	if (vd->vdev_resilver_deferred)
 		return (B_FALSE);
 
@@ -3333,9 +3337,9 @@ vdev_dtl_should_excise(vdev_t *vd, boolean_t rebuild_done)
 		vdev_rebuild_t *vr = &vd->vdev_top->vdev_rebuild_config;
 		vdev_rebuild_phys_t *vrp = &vr->vr_rebuild_phys;
 
-		/* Rebuild not initiated by attach */
+		/* Rebuild repairs only the devices it was started for. */
 		if (vd->vdev_rebuild_txg == 0)
-			return (B_TRUE);
+			return (B_FALSE);
 
 		/*
 		 * When a rebuild completes without error then all missing data
@@ -3404,26 +3408,22 @@ vdev_dtl_reassess_impl(vdev_t *vd, uint64_t txg, uint64_t scrub_txg,
 
 		mutex_enter(&vd->vdev_dtl_lock);
 
-		/*
-		 * If requested, pretend the scan or rebuild completed cleanly.
-		 */
-		if (zfs_scan_ignore_errors) {
-			if (scn != NULL)
-				scn->scn_phys.scn_errors = 0;
-			if (vr != NULL)
-				vr->vr_rebuild_phys.vrp_errors = 0;
-		}
+		/* Do not erase rebuild errors for the recovery override. */
+		if (!rebuild_done && zfs_scan_ignore_errors && scn != NULL)
+			scn->scn_phys.scn_errors = 0;
 
 		if (scrub_txg != 0 &&
 		    !zfs_range_tree_is_empty(vd->vdev_dtl[DTL_MISSING])) {
 			wasempty = B_FALSE;
 			zfs_dbgmsg("guid:%llu txg:%llu scrub:%llu started:%d "
-			    "dtl:%llu/%llu errors:%llu",
+			    "dtl:%llu/%llu rebuild:%d errors:%llu",
 			    (u_longlong_t)vd->vdev_guid, (u_longlong_t)txg,
 			    (u_longlong_t)scrub_txg, spa->spa_scrub_started,
 			    (u_longlong_t)vdev_dtl_min(vd),
-			    (u_longlong_t)vdev_dtl_max(vd),
-			    (u_longlong_t)(scn ? scn->scn_phys.scn_errors : 0));
+			    (u_longlong_t)vdev_dtl_max(vd), rebuild_done,
+			    (u_longlong_t)(rebuild_done ?
+			    vr->vr_rebuild_phys.vrp_errors :
+			    (scn ? scn->scn_phys.scn_errors : 0)));
 		}
 
 		/*
@@ -3432,14 +3432,12 @@ vdev_dtl_reassess_impl(vdev_t *vd, uint64_t txg, uint64_t scrub_txg,
 		 * only want to excise regions on vdevs that were available
 		 * during the entire duration of this scan.
 		 */
-		if (rebuild_done &&
-		    vr != NULL && vr->vr_rebuild_phys.vrp_errors == 0) {
+		if (rebuild_done) {
+			check_excise = (vr->vr_rebuild_phys.vrp_errors == 0 ||
+			    zfs_scan_ignore_errors);
+		} else if (spa->spa_scrub_started ||
+		    (scn != NULL && scn->scn_phys.scn_errors == 0)) {
 			check_excise = B_TRUE;
-		} else {
-			if (spa->spa_scrub_started ||
-			    (scn != NULL && scn->scn_phys.scn_errors == 0)) {
-				check_excise = B_TRUE;
-			}
 		}
 
 		if (scrub_txg && check_excise &&
@@ -5439,18 +5437,44 @@ vdev_stat_update(zio_t *zio, uint64_t psize)
 		return;
 	}
 
-	if (flags & ZIO_FLAG_SPECULATIVE)
-		return;
+	if (type == ZIO_TYPE_WRITE && txg != 0 &&
+	    zio->io_priority == ZIO_PRIORITY_REBUILD) {
+		ASSERT(flags & ZIO_FLAG_IO_REPAIR);
 
-	/*
-	 * If this is an I/O error that is going to be retried, then ignore the
-	 * error.  Otherwise, the user may interpret B_FAILFAST I/O errors as
-	 * hard errors, when in reality they can happen for any number of
-	 * innocuous reasons (bus resets, MPxIO link failure, etc).
-	 */
-	if (zio->io_error == EIO &&
-	    !(zio->io_flags & ZIO_FLAG_IO_RETRY))
-		return;
+		/*
+		 * Repair writes do not propagate their errors to the read
+		 * which issued them. Report the failed repair separately so
+		 * that a successful read cannot certify an incomplete rebuild.
+		 * All children have completed before vdev_stat_update() runs.
+		 * Delegated aggregates have no txg; their original leaf I/Os
+		 * account for the result using their own flags and priority.
+		 *
+		 * dRAID also writes to unavailable children to maintain their
+		 * DTLs. Such errors must not prevent successful reconstruction
+		 * of the other children; the unavailable child's DTL cannot
+		 * be retired. See vdev_draid_spare_child_done(). A device being
+		 * rebuilt always counts, even if it later becomes writable.
+		 */
+		if (vd->vdev_ops->vdev_op_leaf &&
+		    (vdev_writeable(vd) || vd->vdev_rebuild_txg != 0))
+			zio->io_post |= ZIO_POST_REBUILD_ERROR;
+
+		/*
+		 * Even speculative and unretried rebuild writes must update
+		 * DTLs below. Their failure does not cause the logical read
+		 * to retry, and speculative data is not an optional repair.
+		 */
+	} else {
+		if (flags & ZIO_FLAG_SPECULATIVE)
+			return;
+
+		/*
+		 * Ignore errors which will be retried. Otherwise, transient
+		 * failfast errors could be mistaken for permanent failures.
+		 */
+		if (zio->io_error == EIO && !(flags & ZIO_FLAG_IO_RETRY))
+			return;
+	}
 
 	/*
 	 * Intent logs writes won't propagate their error to the root
@@ -5481,11 +5505,10 @@ vdev_stat_update(zio_t *zio, uint64_t psize)
 		 * reads, because we have no transactional context in which to
 		 * do so -- and it's not clear that it'd be desirable anyway.
 		 *
-		 * For rebuild, since we don't have any information about BPs
-		 * and txgs that are being rebuilt, we need to add all known
-		 * txgs (starting from TXG_INITIAL) to DTL so that during
-		 * healing resilver we would be able to check all txgs at
-		 * vdev_draid_need_resilver().
+		 * Rebuild I/Os use synthetic BPs with no meaningful birth txg.
+		 * Mark the saved rebuild interval missing so that subsequent
+		 * healing can find these failures, including writes routed
+		 * through distributed spares.
 		 */
 		uint64_t size = 1;
 		if (vd->vdev_ops->vdev_op_leaf) {

@@ -45,7 +45,7 @@ typedef struct vdev_rebuild_phys {
 	uint64_t	vrp_bytes_issued;	/* read bytes rebuilt */
 	uint64_t	vrp_bytes_rebuilt;	/* rebuilt bytes */
 	uint64_t	vrp_bytes_est;		/* total bytes to scan */
-	uint64_t	vrp_errors;		/* errors during rebuild */
+	uint64_t	vrp_errors;		/* failed rebuild segments */
 } vdev_rebuild_phys_t;
 
 /*
