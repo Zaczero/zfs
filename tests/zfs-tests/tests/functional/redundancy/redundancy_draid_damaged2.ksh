@@ -107,11 +107,12 @@ for nparity in 1 2 3; do
 		    bs=1M seek=4 count=$(($dev_size_mb-4))
 		log_must zpool import -o cachefile=none -d $dir $TESTPOOL
 
-		log_must zpool replace -fsw $TESTPOOL $damaged $spare
+		log_must zpool replace -fs $TESTPOOL $damaged $spare
+		# Do not wait for retirement before requesting checksum healing.
+		log_must zpool wait -t resilver $TESTPOOL
 
-		# Scrub the pool after the sequential resilver and verify
-		# that the silent damage was repaired by the scrub.
-		log_must verify_draid_pool $TESTPOOL "damaged"
+		# Finish any required healing, then verify the repaired pool.
+		log_must verify_draid_pool $TESTPOOL "rebuild-damaged"
 	done
 
 	for nspare in 0 1 2; do

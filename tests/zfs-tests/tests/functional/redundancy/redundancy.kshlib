@@ -415,8 +415,12 @@ function recover_bad_missing_devs
 #    errors are expected to be reported as the damaged blocks are
 #    detected and repaired.
 #
-# In all of these cases a scrub must be able to successfully repair the
-# pool and result in no data loss.
+# 4. rebuild-damaged - Like damaged, but a rebuild may have refused repair.
+#    Complete checksum-based healing before the verification scrub. Checksum
+#    errors must still have been detected, but repair IO can occur in either
+#    pass, so the final scrub need not issue more repairs.
+#
+# In all of these cases the final scrub must complete without data errors.
 #
 function verify_draid_pool
 {
@@ -424,6 +428,10 @@ function verify_draid_pool
 	typeset replace_mode=${2:-healing}
 
 	log_note "verify_draid_pool $pool $replace_mode"
+	if [[ "$replace_mode" = "rebuild-damaged" ]]; then
+		log_must zpool reopen $pool
+		log_must zpool wait -t resilver $pool
+	fi
 	log_must zpool scrub -w $pool
 	sync_pool $pool true
 
@@ -449,13 +457,15 @@ function verify_draid_pool
 			log_note "$status"
 			log_fail "Unexpected CKSUM errors found for $pool ($cksum)"
 		fi
-	elif [[ "$replace_mode" = "damaged" ]]; then
+	elif [[ "$replace_mode" = "damaged" ||
+	    "$replace_mode" = "rebuild-damaged" ]]; then
 		if [[ $cksum -lt 1 ]]; then
 			log_note "$status"
 			log_fail "Expected CKSUM errors missing for $pool ($cksum)"
 		fi
 
-		if check_pool_status $pool "scan" "repaired 0B"; then
+		if [[ "$replace_mode" = "damaged" ]] &&
+		    check_pool_status $pool "scan" "repaired 0B"; then
 			log_note "$status"
 			log_fail "Expected repair IO missing for $pool ($cksum)"
 		fi

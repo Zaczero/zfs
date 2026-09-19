@@ -76,10 +76,12 @@ function test_sequential_resilver # <pool> <parity> <dir>
 
 	for (( i=0; i<$nparity; i=i+1 )); do
 		spare=draid${nparity}-0-$i
-		log_must zpool replace -fsw $pool $dir/dev-$i $spare
+		log_must zpool replace -fs $pool $dir/dev-$i $spare
+		# The rebuild may refuse repairs until checksums are available.
+		log_must zpool wait -t resilver $pool
 	done
 
-	log_must verify_draid_pool $pool "damaged"
+	log_must verify_draid_pool $pool "rebuild-damaged"
 }
 
 log_onexit cleanup

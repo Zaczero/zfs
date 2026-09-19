@@ -3167,6 +3167,19 @@ vdev_raidz_io_done_verified(zio_t *zio, raidz_row_t *rr)
 	}
 
 	/*
+	 * With no checksum, an unreconstructed row would otherwise pass
+	 * verification and could be used to repair children with bad data.
+	 */
+	if (zio->io_priority == ZIO_PRIORITY_REBUILD &&
+	    data_errors + parity_errors + parity_untried >
+	    rr->rr_firstdatacol) {
+		mutex_enter(&zio->io_lock);
+		zio->io_post |= ZIO_POST_REBUILD_ERROR;
+		mutex_exit(&zio->io_lock);
+		return;
+	}
+
+	/*
 	 * If we read more parity disks than were used for
 	 * reconstruction, confirm that the other parity disks produced
 	 * correct data.
@@ -3186,14 +3199,19 @@ vdev_raidz_io_done_verified(zio_t *zio, raidz_row_t *rr)
 	    spa_writeable(zio->io_spa))) {
 		int n = raidz_parity_verify(zio, rr);
 		/*
-		 * In, Reed-Solomon encoding, if we have ndata+1 columns and
+		 * In Reed-Solomon encoding, if we have ndata+1 columns and
 		 * the parity doesn't match, it means the data integrity is
 		 * compromised. We shouldn't try to repair anything in this
 		 * case.
 		 */
 		if (parity_verify && n > 0 &&
-		    zio->io_priority == ZIO_PRIORITY_REBUILD)
+		    zio->io_priority == ZIO_PRIORITY_REBUILD) {
+			/* Withholding repair leaves the rebuild incomplete. */
+			mutex_enter(&zio->io_lock);
+			zio->io_post |= ZIO_POST_REBUILD_ERROR;
+			mutex_exit(&zio->io_lock);
 			return;
+		}
 		/*
 		 * If we have only ndata columns, the data integrity will
 		 * be checked by the checksums normally, but not in case
