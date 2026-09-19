@@ -79,6 +79,7 @@ SUBSTFILES += $(nobase_nodist_datadir_zfs_tests_tests_DATA) $(nobase_nodist_data
 
 if BUILD_LINUX
 nobase_dist_datadir_zfs_tests_tests_SCRIPTS += \
+	functional/removal/indirect_reconstruct.ksh \
 	functional/simd/simd_supported.ksh \
 	functional/tmpfile/cleanup.ksh \
 	functional/tmpfile/setup.ksh \
@@ -367,6 +368,7 @@ nobase_dist_datadir_zfs_tests_tests_DATA += \
 	functional/redundancy/redundancy.cfg \
 	functional/redundancy/redundancy.kshlib \
 	functional/refreserv/refreserv.cfg \
+	functional/removal/indirect_test.kshlib \
 	functional/removal/removal.kshlib \
 	functional/replacement/replacement.cfg \
 	functional/reservation/reservation.cfg \
