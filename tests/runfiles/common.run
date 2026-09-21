@@ -984,9 +984,10 @@ tests = ['attach_import', 'attach_multiple', 'attach_rebuild', 'attach_resilver'
     'attach_resilver_sit_out', 'detach', 'rebuild_bounds',
     'rebuild_disabled_feature', 'rebuild_draid', 'rebuild_draid_errors',
     'rebuild_late_writes', 'rebuild_lost_segment', 'rebuild_multiple',
-    'rebuild_raidz', 'rebuild_reset_errors', 'rebuild_retirement',
-    'rebuild_stale_source', 'rebuild_write_errors', 'replace_import',
-    'replace_rebuild', 'replace_resilver', 'replace_resilver_sit_out',
+    'rebuild_raidz', 'rebuild_reset_errors', 'rebuild_resume_errors',
+    'rebuild_resume_state', 'rebuild_retirement', 'rebuild_stale_source',
+    'rebuild_write_errors', 'replace_import', 'replace_rebuild',
+    'replace_resilver', 'replace_resilver_sit_out',
     'resilver_restart_001', 'resilver_restart_002', 'scrub_cancel']
 tags = ['functional', 'replacement']
 

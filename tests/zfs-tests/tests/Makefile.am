@@ -82,6 +82,8 @@ nobase_dist_datadir_zfs_tests_tests_SCRIPTS += \
 	functional/replacement/rebuild_draid.ksh \
 	functional/replacement/rebuild_draid_errors.ksh \
 	functional/replacement/rebuild_reset_errors.ksh \
+	functional/replacement/rebuild_resume_errors.ksh \
+	functional/replacement/rebuild_resume_state.ksh \
 	functional/replacement/rebuild_write_errors.ksh \
 	functional/simd/simd_supported.ksh \
 	functional/tmpfile/cleanup.ksh \
