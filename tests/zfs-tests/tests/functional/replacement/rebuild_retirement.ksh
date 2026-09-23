@@ -46,7 +46,7 @@ sync_pool "$TESTPOOL1"
 log_must check_state "$TESTPOOL1" "$rebuild_dir/disk-1" online
 log_must rebuild_test_missing "$rebuild_dir/disk-1"
 log_must zpool replace -s "$TESTPOOL1" "$rebuild_dir/disk-0" "$rebuild_target"
-rebuild_test_completed
+rebuild_test_completed 0
 # Only a healing pass, which the rebuild alone does not start, may retire it.
 log_must eval "rebuild_test_missing '$rebuild_dir/disk-1' || rebuild_test_healed"
 rebuild_test_finish
@@ -65,7 +65,7 @@ for mode in errors override; do
 	rebuild_test_inject -d "$rebuild_dir/disk-1" -e io -T read -f 100
 	rebuild_test_inject -d "$rebuild_target" -e io -T read -f 100
 	log_must set_tunable32 SCAN_SUSPEND_PROGRESS 0
-	rebuild_test_completed
+	rebuild_test_completed '[1-9][0-9]*'
 	log_must rebuild_test_clear_faults
 	log_must check_pool_status "$TESTPOOL1" "scan" \
 	    "with [1-9][0-9]* errors" true

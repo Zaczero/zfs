@@ -79,6 +79,9 @@ SUBSTFILES += $(nobase_nodist_datadir_zfs_tests_tests_DATA) $(nobase_nodist_data
 
 if BUILD_LINUX
 nobase_dist_datadir_zfs_tests_tests_SCRIPTS += \
+	functional/replacement/rebuild_draid.ksh \
+	functional/replacement/rebuild_reset_errors.ksh \
+	functional/replacement/rebuild_write_errors.ksh \
 	functional/simd/simd_supported.ksh \
 	functional/tmpfile/cleanup.ksh \
 	functional/tmpfile/setup.ksh \
