@@ -1,0 +1,45 @@
+# SPDX-License-Identifier: CDDL-1.0
+#
+# This file and its contents are supplied under the terms of the
+# Common Development and Distribution License ("CDDL"), version 1.0.
+# You may only use this file in accordance with the terms of version
+# 1.0 of the CDDL.
+#
+# A full copy of the text of the CDDL should have accompanied this
+# source. A copy of the CDDL is also available via the Internet at
+# https://opensource.org/license/CDDL-1.0.
+#
+
+function resilver_test_cleanup
+{
+	zinject -c all >/dev/null 2>&1
+	# Destroy before restoring progress so cleanup cannot finish repair.
+	destroy_pool "$TESTPOOL1"
+	log_must set_tunable32 SCAN_IGNORE_ERRORS "$orig_ignore"
+	log_must set_tunable32 SCAN_SUSPEND_PROGRESS "$orig_suspend"
+	log_must set_tunable32 SCAN_LEGACY "$orig_legacy"
+	log_must set_tunable32 RESILVER_MIN_TIME_MS "$orig_min_time"
+	log_must set_tunable64 SCAN_VDEV_LIMIT "$orig_vdev_limit"
+	rm -rf "$workdir"
+}
+
+function resilver_test_init
+{
+	orig_ignore=$(get_tunable SCAN_IGNORE_ERRORS) ||
+	    log_fail "cannot read SCAN_IGNORE_ERRORS"
+	orig_suspend=$(get_tunable SCAN_SUSPEND_PROGRESS) ||
+	    log_fail "cannot read SCAN_SUSPEND_PROGRESS"
+	orig_legacy=$(get_tunable SCAN_LEGACY) ||
+	    log_fail "cannot read SCAN_LEGACY"
+	orig_min_time=$(get_tunable RESILVER_MIN_TIME_MS) ||
+	    log_fail "cannot read RESILVER_MIN_TIME_MS"
+	orig_vdev_limit=$(get_tunable SCAN_VDEV_LIMIT) ||
+	    log_fail "cannot read SCAN_VDEV_LIMIT"
+	workdir=$(mktemp -d "$TEST_BASE_DIR/resilver_errors.XXXXXX") ||
+	    log_fail "cannot create test directory"
+	log_onexit resilver_test_cleanup
+	log_must set_tunable32 SCAN_IGNORE_ERRORS 0
+	log_must truncate -s 512M "$workdir"/disk-{0,1}
+	log_must file_write -o create -f "$workdir/expected" \
+	    -b 1048576 -c 64 -d 65
+}

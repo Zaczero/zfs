@@ -79,6 +79,10 @@ SUBSTFILES += $(nobase_nodist_datadir_zfs_tests_tests_DATA) $(nobase_nodist_data
 
 if BUILD_LINUX
 nobase_dist_datadir_zfs_tests_tests_SCRIPTS += \
+	functional/replacement/resilver_import.ksh \
+	functional/replacement/resilver_read_errors.ksh \
+	functional/replacement/resilver_traversal_errors.ksh \
+	functional/replacement/resilver_write_errors.ksh \
 	functional/simd/simd_supported.ksh \
 	functional/tmpfile/cleanup.ksh \
 	functional/tmpfile/setup.ksh \
@@ -369,6 +373,7 @@ nobase_dist_datadir_zfs_tests_tests_DATA += \
 	functional/refreserv/refreserv.cfg \
 	functional/removal/removal.kshlib \
 	functional/replacement/replacement.cfg \
+	functional/replacement/resilver_test.kshlib \
 	functional/reservation/reservation.cfg \
 	functional/reservation/reservation.shlib \
 	functional/rsend/dedup_encrypted_zvol.bz2 \
