@@ -989,8 +989,8 @@ tests = ['attach_import', 'attach_multiple', 'attach_rebuild', 'attach_resilver'
     'resilver_import', 'resilver_probe', 'resilver_read_errors',
     'resilver_reassess', 'resilver_reopen', 'resilver_restart',
     'resilver_restart_001', 'resilver_restart_002',
-    'resilver_traversal_errors', 'resilver_write_errors', 'scrub_cancel',
-    'scrub_dtl_retirement']
+    'resilver_resume_state', 'resilver_traversal_errors',
+    'resilver_write_errors', 'scrub_cancel', 'scrub_dtl_retirement']
 tags = ['functional', 'replacement']
 
 [tests/functional/reservation]
