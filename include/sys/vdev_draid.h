@@ -85,7 +85,8 @@ extern int vdev_draid_generate_perms(const draid_map_t *, uint8_t **);
  * General dRAID support functions.
  */
 extern boolean_t vdev_draid_readable(vdev_t *, uint64_t);
-extern boolean_t vdev_draid_missing(vdev_t *, uint64_t, uint64_t, uint64_t);
+extern boolean_t vdev_draid_missing(vdev_t *, uint64_t, uint64_t, uint64_t,
+    boolean_t);
 extern uint64_t vdev_draid_asize_to_psize(vdev_t *, uint64_t, uint64_t);
 extern void vdev_draid_map_alloc_empty(zio_t *, struct raidz_row *);
 extern int vdev_draid_map_verify_empty(zio_t *, struct raidz_row *);

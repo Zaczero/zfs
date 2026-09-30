@@ -17,7 +17,7 @@
 # DESCRIPTION:
 #	A sequential rebuild does not copy from a mirror child that is missing
 #	data while another child has it, and never reads the device it is
-#	rebuilding.
+#	rebuilding. A dRAID rebuild does not reconstruct from such a child.
 #
 # STRATEGY:
 #	1. Write a file while one child of a two-way mirror is offline, then
@@ -42,6 +42,12 @@
 #	7. Rebuild onto a new device while every read of the only source
 #	   fails. The rebuild must report errors rather than read the device
 #	   it is rebuilding, and the source must remain required.
+#	8. In a single-parity dRAID, write a file while one child is offline,
+#	   start rebuilding another child onto a distributed spare, and bring
+#	   the stale child back. With every read of the replaced child
+#	   failing, rows holding both columns have no complete source: the
+#	   rebuild must report errors rather than reconstruct from the stale
+#	   child, and the file must stay intact.
 #
 
 verify_runnable "global"
@@ -55,7 +61,7 @@ function cleanup
 	rm -rf $workdir
 }
 
-log_assert "A sequential rebuild does not copy from a stale mirror child"
+log_assert "A sequential rebuild does not copy from a stale child"
 orig_suspend=$(get_tunable SCAN_SUSPEND_PROGRESS)
 orig_scrub=$(get_tunable REBUILD_SCRUB_ENABLED)
 workdir=$(mktemp -d $TEST_BASE_DIR/rebuild_stale_source.XXXXXX) ||
@@ -197,5 +203,31 @@ log_must check_pool_status $TESTPOOL1 "scan" "with [1-9][0-9]* errors" true
 # The errors keep the new device's missing ranges, so the source remains
 # required.
 log_mustnot zpool detach $TESTPOOL1 $workdir/disk-0
+destroy_pool $TESTPOOL1
 
-log_pass "A sequential rebuild did not copy from a stale mirror child"
+log_note "Stale dRAID child"
+log_must truncate -s 0 $workdir/disk-{0..4}
+log_must truncate -s 512M $workdir/disk-{0..4}
+log_must zpool create -f $TESTPOOL1 draid1:2d:5c:1s $workdir/disk-{0..4}
+log_must zfs create -o compression=off -o primarycache=metadata \
+    $TESTPOOL1/$TESTFS
+mntpnt=$(get_prop mountpoint $TESTPOOL1/$TESTFS)
+log_must zpool offline $TESTPOOL1 $workdir/disk-1
+log_must cp $workdir/expected $mntpnt/file
+sync_pool $TESTPOOL1
+log_must set_tunable32 SCAN_SUSPEND_PROGRESS 1
+log_must zpool replace -s $TESTPOOL1 $workdir/disk-2 draid1-0-0
+log_must zpool online $TESTPOOL1 $workdir/disk-1
+log_must zinject -d $workdir/disk-2 -e io -T read -f 100 $TESTPOOL1
+log_must set_tunable32 SCAN_SUSPEND_PROGRESS 0
+log_must zpool wait -t resilver $TESTPOOL1
+log_must zinject -c all
+log_must eval "zpool history -i $TESTPOOL1 |
+    grep -q 'rebuild .* errors=[1-9][0-9]* complete'"
+# Reconstructing from the stale child would also self-heal the replaced
+# child with its result.
+log_must zpool export $TESTPOOL1
+log_must zpool import -d $workdir $TESTPOOL1
+log_must cmp $workdir/expected $mntpnt/file
+
+log_pass "A sequential rebuild did not copy from a stale child"

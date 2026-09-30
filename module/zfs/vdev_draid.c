@@ -1361,10 +1361,14 @@ vdev_draid_min_alloc(vdev_t *vd)
  * fly by replacing a dRAID spare with the child vdev under the offset.
  * Note that it is a recursive process because the child vdev can be
  * another dRAID spare and so on.
+ *
+ * A sequential rebuild reads rows through a block pointer with the synthetic
+ * birth TXG_INITIAL and no checksum, so a row may hold blocks of any txg.
+ * For a rebuild, a leaf missing any txg is therefore missing the row.
  */
 boolean_t
 vdev_draid_missing(vdev_t *vd, uint64_t physical_offset, uint64_t txg,
-    uint64_t size)
+    uint64_t size, boolean_t rebuild)
 {
 	if (vd->vdev_ops == &vdev_spare_ops ||
 	    vd->vdev_ops == &vdev_replacing_ops) {
@@ -1379,7 +1383,7 @@ vdev_draid_missing(vdev_t *vd, uint64_t physical_offset, uint64_t txg,
 				continue;
 
 			if (!vdev_draid_missing(cvd, physical_offset,
-			    txg, size))
+			    txg, size, rebuild))
 				return (B_FALSE);
 		}
 
@@ -1406,13 +1410,20 @@ vdev_draid_missing(vdev_t *vd, uint64_t physical_offset, uint64_t txg,
 		 * Consult the DTL on the relevant vdev. Either a vdev
 		 * leaf or spare/replace mirror child may be returned so
 		 * we must recursively call vdev_draid_missing_impl().
+		 * A rebuild consults it rather than the spare's own DTL,
+		 * which also records writes that failed on the children
+		 * under other offsets.
 		 */
 		vd = vdev_draid_spare_get_child(vd, physical_offset);
 		if (vd == NULL)
 			return (B_TRUE);
 
-		return (vdev_draid_missing(vd, physical_offset, txg, size));
+		return (vdev_draid_missing(vd, physical_offset, txg, size,
+		    rebuild));
 	}
+
+	if (rebuild)
+		return (!vdev_dtl_empty(vd, DTL_MISSING));
 
 	return (vdev_dtl_contains(vd, DTL_MISSING, txg, size));
 }
@@ -2098,7 +2109,8 @@ vdev_draid_io_start_read(zio_t *zio, raidz_row_t *rr)
 			continue;
 		}
 
-		if (vdev_draid_missing(cvd, rc->rc_offset, zio->io_txg, 1)) {
+		if (vdev_draid_missing(cvd, rc->rc_offset, zio->io_txg, 1,
+		    zio->io_priority == ZIO_PRIORITY_REBUILD)) {
 			vdev_t *svd;
 
 			if (c >= rr->rr_firstdatacol)

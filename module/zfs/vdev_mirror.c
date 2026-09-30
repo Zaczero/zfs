@@ -510,7 +510,8 @@ vdev_mirror_child_missing(zio_t *zio, mirror_child_t *mc, boolean_t source)
 	 * under one of its slices is faulted.
 	 */
 	if (vd->vdev_top != NULL && vd->vdev_top->vdev_ops == &vdev_draid_ops)
-		return (vdev_draid_missing(vd, mc->mc_offset, zio->io_txg, 1));
+		return (vdev_draid_missing(vd, mc->mc_offset, zio->io_txg, 1,
+		    source && zio->io_priority == ZIO_PRIORITY_REBUILD));
 
 	/*
 	 * A sequential rebuild reads whole segments through a block pointer
