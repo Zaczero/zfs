@@ -74,19 +74,19 @@ tags = ['functional', 'bclone']
 timeout = 7200
 
 [tests/functional/block_cloning]
-tests = ['block_cloning_clone_mmap_cached',
+tests = ['block_cloning_after_device_removal', 'block_cloning_after_trunc',
+    'block_cloning_clone_mmap_cached', 'block_cloning_clone_mmap_write',
     'block_cloning_copyfilerange',
-    'block_cloning_copyfilerange_partial',
-    'block_cloning_copyfilerange_fallback',
-    'block_cloning_disabled_copyfilerange',
     'block_cloning_copyfilerange_cross_dataset',
-    'block_cloning_cross_enc_dataset',
+    'block_cloning_copyfilerange_fallback',
     'block_cloning_copyfilerange_fallback_same_txg',
-    'block_cloning_replay', 'block_cloning_replay_encrypted',
-    'block_cloning_lwb_buffer_overflow', 'block_cloning_clone_mmap_write',
-    'block_cloning_rlimit_fsize', 'block_cloning_large_offset',
-    'block_cloning_after_device_removal',
-    'block_cloning_after_trunc', 'block_cloning_resilver_free']
+    'block_cloning_copyfilerange_partial',
+    'block_cloning_cross_enc_dataset',
+    'block_cloning_disabled_copyfilerange', 'block_cloning_large_offset',
+    'block_cloning_lwb_buffer_overflow', 'block_cloning_replay',
+    'block_cloning_replay_encrypted',
+    'block_cloning_resilver_claimed_log', 'block_cloning_resilver_free',
+    'block_cloning_rlimit_fsize']
 tags = ['functional', 'block_cloning']
 
 [tests/functional/bootfs]
@@ -567,15 +567,16 @@ tests = ['zpool_resilver_bad_args', 'zpool_resilver_restart',
 tags = ['functional', 'cli_root', 'zpool_resilver']
 
 [tests/functional/cli_root/zpool_scrub]
-tests = ['zpool_scrub_001_neg', 'zpool_scrub_002_pos', 'zpool_scrub_003_pos',
-    'zpool_scrub_004_pos', 'zpool_scrub_005_pos',
-    'zpool_scrub_encrypted_unloaded', 'zpool_scrub_print_repairing',
-    'zpool_scrub_offline_device', 'zpool_scrub_multiple_copies',
-    'zpool_scrub_multiple_pools',
-    'zpool_error_scrub_001_pos', 'zpool_error_scrub_002_pos',
+tests = ['zpool_error_scrub_001_pos', 'zpool_error_scrub_002_pos',
     'zpool_error_scrub_003_pos', 'zpool_error_scrub_004_pos',
-    'zpool_scrub_date_range_001', 'zpool_scrub_date_range_002',
-    'zpool_scrub_thorough', 'zpool_scrub_txg_continue_from_last']
+    'zpool_scrub_001_neg', 'zpool_scrub_002_pos', 'zpool_scrub_003_pos',
+    'zpool_scrub_004_pos', 'zpool_scrub_005_pos',
+    'zpool_scrub_claimed_log', 'zpool_scrub_date_range_001',
+    'zpool_scrub_date_range_002', 'zpool_scrub_encrypted_unloaded',
+    'zpool_scrub_multiple_copies', 'zpool_scrub_multiple_pools',
+    'zpool_scrub_offline_device',
+    'zpool_scrub_print_repairing', 'zpool_scrub_thorough',
+    'zpool_scrub_txg_continue_from_last']
 tags = ['functional', 'cli_root', 'zpool_scrub']
 
 [tests/functional/cli_root/zpool_set]
@@ -594,13 +595,13 @@ tests = ['zpool_split_cliargs', 'zpool_split_devices',
 tags = ['functional', 'cli_root', 'zpool_split']
 
 [tests/functional/cli_root/zpool_status]
-tests = ['zpool_status_001_pos', 'zpool_status_002_pos',
+tests = ['zpool_status_-v', 'zpool_status_001_pos', 'zpool_status_002_pos',
     'zpool_status_003_pos', 'zpool_status_004_pos',
     'zpool_status_005_pos', 'zpool_status_006_pos',
     'zpool_status_007_pos', 'zpool_status_008_pos',
     'zpool_status_009_pos', 'zpool_status_010_pos',
-    'zpool_status_011_pos', 'zpool_status_features_001_pos',
-    'zpool_status_-v']
+    'zpool_status_011_pos', 'zpool_status_claimed_log_error',
+    'zpool_status_features_001_pos']
 tags = ['functional', 'cli_root', 'zpool_status']
 
 [tests/functional/cli_root/zpool_sync]
