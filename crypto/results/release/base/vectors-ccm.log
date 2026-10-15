@@ -1,0 +1,3 @@
+AES-CCM [generic]: tests=552: passed=552 failed=0
+AES-CCM [x86_64]: tests=552: passed=552 failed=0
+AES-CCM [aesni]: tests=552: passed=552 failed=0

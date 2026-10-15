@@ -1,0 +1,9 @@
+  CC       module/zfs/libzpool_la-ddt.lo
+  GEN      gitrev
+  CC       module/icp/algs/modes/libicp_la-gcm.lo
+  CC       module/icp/io/libicp_la-aes.lo
+  CC       tests/zfs-tests/cmd/crypto_test.o
+  CCLD     libicp.la
+copying selected object files to avoid basename conflicts...
+  CCLD     libzpool.la
+  CCLD     tests/zfs-tests/cmd/crypto_test

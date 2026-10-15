@@ -1,0 +1,42 @@
+Permission denied the ZFS utilities must be run as root.
+
+--- Cleanup ---
+Removing pool(s):     
+Removing all dm(s):   
+Removing loopback(s): 
+Removing files(s):    
+Permission denied the ZFS utilities must be run as root.
+
+--- Configuration ---
+Runfiles:        /var/tmp/zfs-tests.44185.run
+STF_TOOLS:       /home/zfs/zfs-scrub-review-v2/tests/test-runner
+STF_SUITE:       /home/zfs/zfs-scrub-review-v2/tests/zfs-tests
+STF_PATH:        /home/zfs/zfs-scrub-review-v2/tests/zfs-tests/bin
+FILEDIR:         /var/tmp
+TMPDIR:          /var/tmp
+FILES:           /var/tmp/file-vdev0 /var/tmp/file-vdev1 /var/tmp/file-vdev2
+LOOPBACKS:       /dev/loop0 /dev/loop1 /dev/loop2
+DISKS:           loop0 loop1 loop2
+NUM_DISKS:       3
+FILESIZE:        1GB
+ITERATIONS:      1
+TAGS:            functional
+STACK_TRACER:    no
+Keep pool(s):    rpool
+Missing util(s): zarcsummary zarcstat zilstat dbufstat pax perf
+
+/home/zfs/zfs-scrub-review-v2/tests/test-runner/bin/test-runner.py      -c "/var/tmp/zfs-tests.44185.run" -T "functional" -i "/home/zfs/zfs-scrub-review-v2/tests/zfs-tests" -I "1"
+[2026-10-15T11:44:20.839958] Test: /home/zfs/zfs-scrub-review-v2/tests/zfs-tests/tests/functional/crypto/icp_aes_gcm.ksh (run as root) [00:00] [PASS]
+
+Results Summary
+PASS	   1
+
+Running Time:	00:00:00
+Percent passed:	100.0%
+Log directory:	/var/tmp/test_results/20261015T114420
+
+Tests with results other than PASS that are expected:
+
+Tests with result of PASS that are unexpected:
+
+Tests with results other than PASS that are unexpected:

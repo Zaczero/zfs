@@ -1,0 +1,14 @@
+[2026-10-15T11:44:50.760174] Test: /home/zfs/zfs-scrub-review-v2/tests/zfs-tests/tests/functional/crypto/icp_aes_gcm.ksh (run as root) [00:00] [PASS]
+11:44:50.73 ASSERTION: ICP passes test vectors for AES-GCM
+11:44:50.75 AES-GCM [generic+generic]: tests=316: passed=316 failed=0
+11:44:50.75 AES-GCM [x86_64+generic]: tests=316: passed=316 failed=0
+11:44:50.75 AES-GCM [aesni+generic]: tests=316: passed=316 failed=0
+11:44:50.75 AES-GCM [generic+pclmulqdq]: tests=316: passed=316 failed=0
+11:44:50.75 AES-GCM [x86_64+pclmulqdq]: tests=316: passed=316 failed=0
+11:44:50.75 AES-GCM [aesni+pclmulqdq]: tests=316: passed=316 failed=0
+11:44:50.75 AES-GCM [x86_64+avx]: tests=316: passed=316 failed=0
+11:44:50.75 AES-GCM [aesni+avx]: tests=316: passed=316 failed=0
+11:44:50.75 AES-GCM [x86_64+avx2]: [not supported on this platform]
+11:44:50.75 AES-GCM [aesni+avx2]: [not supported on this platform]
+11:44:50.75 SUCCESS: crypto_test -c /home/zfs/zfs-scrub-review-v2/tests/zfs-tests/tests/functional/crypto/aes_gcm_test.txt
+11:44:50.75 ICP passes test vectors for AES-GCM

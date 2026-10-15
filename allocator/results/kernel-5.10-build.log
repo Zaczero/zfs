@@ -1,0 +1,9 @@
+make: Entering directory '/usr/src/linux-headers-5.10.0-32-cloud-amd64'
+  CC [M]  /home/zfs/crypto-review/kernel-5.10/allocator-bench.o
+  CC [M]  /home/zfs/crypto-review/kernel-5.10/allocator-pressure.o
+  MODPOST /home/zfs/crypto-review/kernel-5.10/Module.symvers
+  CC [M]  /home/zfs/crypto-review/kernel-5.10/allocator-bench.mod.o
+  LD [M]  /home/zfs/crypto-review/kernel-5.10/allocator-bench.ko
+  CC [M]  /home/zfs/crypto-review/kernel-5.10/allocator-pressure.mod.o
+  LD [M]  /home/zfs/crypto-review/kernel-5.10/allocator-pressure.ko
+make: Leaving directory '/usr/src/linux-headers-5.10.0-32-cloud-amd64'

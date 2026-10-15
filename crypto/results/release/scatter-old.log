@@ -1,0 +1,18 @@
+AES-GCM [generic+generic] [RAW]: tests=316: passed=316 failed=0
+AES-GCM [generic+generic] [UIO]: tests=316: passed=316 failed=0
+AES-GCM [x86_64+generic] [RAW]: tests=316: passed=316 failed=0
+AES-GCM [x86_64+generic] [UIO]: tests=316: passed=316 failed=0
+AES-GCM [aesni+generic] [RAW]: tests=316: passed=316 failed=0
+AES-GCM [aesni+generic] [UIO]: tests=316: passed=316 failed=0
+AES-GCM [generic+pclmulqdq] [RAW]: tests=316: passed=316 failed=0
+AES-GCM [generic+pclmulqdq] [UIO]: tests=316: passed=316 failed=0
+AES-GCM [x86_64+pclmulqdq] [RAW]: tests=316: passed=316 failed=0
+AES-GCM [x86_64+pclmulqdq] [UIO]: tests=316: passed=316 failed=0
+AES-GCM [aesni+pclmulqdq] [RAW]: tests=316: passed=316 failed=0
+AES-GCM [aesni+pclmulqdq] [UIO]: tests=316: passed=316 failed=0
+AES-GCM [x86_64+avx] [RAW]: tests=316: passed=316 failed=0
+AES-GCM [x86_64+avx] [UIO]: tests=316: passed=316 failed=0
+AES-GCM [aesni+avx] [RAW]: tests=316: passed=316 failed=0
+AES-GCM [aesni+avx] [UIO]: tests=316: passed=316 failed=0
+AES-GCM [x86_64+avx2]: [not supported on this platform]
+AES-GCM [aesni+avx2]: [not supported on this platform]

@@ -1,0 +1,41 @@
+implementation=generic
+raw rc=0 allocations=2 large=0 bytes=33296 peak=33296 leaked=0
+raw rc=72 allocations=2 large=0 bytes=33296 peak=33296 leaked=0
+split rc=0 allocations=3 large=0 bytes=66064 peak=66064 leaked=0
+split rc=72 allocations=3 large=0 bytes=66064 peak=66064 leaked=0
+fragmented rc=0 allocations=11 large=0 bytes=213527 peak=66071 leaked=0
+fragmented rc=72 allocations=11 large=0 bytes=213527 peak=66071 leaked=0
+short-output rc=66 allocations=1 large=0 bytes=512 peak=512 leaked=0
+truncated-input rc=12 allocations=3 large=0 bytes=66063 peak=66063 leaked=0
+tag-only rc=0 allocations=2 large=0 bytes=528 peak=528 leaked=0
+short-tag rc=66 allocations=1 large=0 bytes=512 peak=512 leaked=0
+implementation=avx
+raw rc=0 allocations=3 large=0 bytes=33488 peak=33488 leaked=0
+raw rc=72 allocations=3 large=0 bytes=33488 peak=33488 leaked=0
+split rc=0 allocations=4 large=0 bytes=66256 peak=66256 leaked=0
+split rc=72 allocations=4 large=0 bytes=66256 peak=66256 leaked=0
+fragmented rc=0 allocations=12 large=0 bytes=213719 peak=66263 leaked=0
+fragmented rc=72 allocations=12 large=0 bytes=213719 peak=66263 leaked=0
+short-output rc=66 allocations=2 large=0 bytes=704 peak=704 leaked=0
+truncated-input rc=12 allocations=4 large=0 bytes=66255 peak=66255 leaked=0
+tag-only rc=0 allocations=3 large=0 bytes=720 peak=720 leaked=0
+short-tag rc=66 allocations=2 large=0 bytes=704 peak=704 leaked=0
+implementation=avx2-vaes
+raw rc=0 allocations=3 large=0 bytes=33552 peak=33552 leaked=0
+raw rc=72 allocations=3 large=0 bytes=33552 peak=33552 leaked=0
+split rc=0 allocations=4 large=0 bytes=66320 peak=66320 leaked=0
+split rc=72 allocations=4 large=0 bytes=66320 peak=66320 leaked=0
+fragmented rc=0 allocations=12 large=0 bytes=213783 peak=66327 leaked=0
+fragmented rc=72 allocations=12 large=0 bytes=213783 peak=66327 leaked=0
+short-output rc=66 allocations=2 large=0 bytes=768 peak=768 leaked=0
+truncated-input rc=12 allocations=4 large=0 bytes=66319 peak=66319 leaked=0
+tag-only rc=0 allocations=3 large=0 bytes=784 peak=784 leaked=0
+short-tag rc=66 allocations=2 large=0 bytes=768 peak=768 leaked=0
+null-GCM-encrypt-params0 rc=29 allocations=1 large=0 bytes=512 peak=512 leaked=512
+null-GCM-decrypt-params0 rc=29 allocations=1 large=0 bytes=512 peak=512 leaked=512
+null-GCM-encrypt-params48 rc=29 allocations=1 large=0 bytes=512 peak=512 leaked=512
+null-GCM-decrypt-params48 rc=29 allocations=1 large=0 bytes=512 peak=512 leaked=512
+null-CCM-encrypt-params0 rc=29 allocations=1 large=0 bytes=512 peak=512 leaked=512
+null-CCM-decrypt-params0 rc=29 allocations=1 large=0 bytes=512 peak=512 leaked=512
+null-CCM-encrypt-params48 rc=29 allocations=1 large=0 bytes=512 peak=512 leaked=512
+null-CCM-decrypt-params48 rc=29 allocations=1 large=0 bytes=512 peak=512 leaked=512

@@ -1,0 +1,13 @@
+make: Entering directory '/nix/store/qgmpkwzzbq34qrjpjbw43x1rqrps292n-linux-7.2.9-dev/lib/modules/7.2.9/build'
+make[1]: Entering directory '/tmp/opencode/crypto-review/kernel-7.2'
+  CC [M]  allocator-bench.o
+  CC [M]  allocator-pressure.o
+  MODPOST Module.symvers
+  LD [M]  allocator-bench.ko
+  BTF [M] allocator-bench.ko
+Skipping BTF generation for allocator-bench.ko due to unavailability of vmlinux
+  LD [M]  allocator-pressure.ko
+  BTF [M] allocator-pressure.ko
+Skipping BTF generation for allocator-pressure.ko due to unavailability of vmlinux
+make[1]: Leaving directory '/tmp/opencode/crypto-review/kernel-7.2'
+make: Leaving directory '/nix/store/qgmpkwzzbq34qrjpjbw43x1rqrps292n-linux-7.2.9-dev/lib/modules/7.2.9/build'

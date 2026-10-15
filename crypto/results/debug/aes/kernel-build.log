@@ -1,0 +1,75 @@
+make  all-recursive
+make[1]: Entering directory '/home/zfs/zfs-scrub-review-v2'
+Making all in include
+make[2]: Entering directory '/home/zfs/zfs-scrub-review-v2/include'
+make[2]: Nothing to be done for 'all'.
+make[2]: Leaving directory '/home/zfs/zfs-scrub-review-v2/include'
+Making all in tests/zfs-tests/tests
+make[2]: Entering directory '/home/zfs/zfs-scrub-review-v2/tests/zfs-tests/tests'
+make[2]: Nothing to be done for 'all'.
+make[2]: Leaving directory '/home/zfs/zfs-scrub-review-v2/tests/zfs-tests/tests'
+Making all in module
+make[2]: Entering directory '/home/zfs/zfs-scrub-review-v2/module'
+mkdir -p os/linux/spl/
+make -C "/home/zfs/zfs-scrub-review-v2" gitrev
+mkdir -p avl/ icp/ icp/algs/aes/ icp/algs/blake3/ icp/algs/edonr/ icp/algs/modes/ icp/algs/sha2/ icp/algs/skein/ icp/api/ icp/asm-aarch64/blake3/ icp/asm-aarch64/sha2/ icp/asm-arm/sha2/ icp/asm-ppc64/blake3/ icp/asm-ppc64/sha2/ icp/asm-x86_64/aes/ icp/asm-x86_64/blake3/ icp/asm-x86_64/modes/ icp/asm-x86_64/sha2/ icp/core/ icp/io/ icp/spi/ lua/ lua/setjmp/ nvpair/ os/linux/zfs/ zcommon/ zfs/ zstd/ zstd/lib/common/ zstd/lib/compress/ zstd/lib/decompress/
+# Pre-6.10 kernel builds didn't need to copy over the source files to the
+make[3]: Entering directory '/home/zfs/zfs-scrub-review-v2'
+# build directory. We need to do it though post-6.10 due to these commits:
+#
+# b1992c3 kbuild: use  instead of / for source dir
+# 9a0ebe5 kbuild: use / instead of / for common pattern rules
+if [ "/home/zfs/zfs-scrub-review-v2/module" != "/home/zfs/zfs-scrub-review-v2/module" ]; then \
+	cp -rsf "/home/zfs/zfs-scrub-review-v2/module"/*/ "/home/zfs/zfs-scrub-review-v2/module"; \
+fi
+make -C /usr/src/linux-headers-6.1.0-53-cloud-amd64  \
+	  \
+	 \
+	 \
+	 \
+	M="$PWD"  O=/usr/src/linux-headers-6.1.0-53-cloud-amd64 CONFIG_ZFS=m modules
+make[3]: Entering directory '/usr/src/linux-headers-6.1.0-53-cloud-amd64'
+  GEN      gitrev
+make[3]: Leaving directory '/home/zfs/zfs-scrub-review-v2'
+  CC [M]  /home/zfs/zfs-scrub-review-v2/module/os/linux/spl/spl-proc.o
+  CC [M]  /home/zfs/zfs-scrub-review-v2/module/icp/algs/modes/gcm.o
+  CC [M]  /home/zfs/zfs-scrub-review-v2/module/icp/io/aes.o
+  CC [M]  /home/zfs/zfs-scrub-review-v2/module/zfs/spa_history.o
+  LD [M]  /home/zfs/zfs-scrub-review-v2/module/spl.o
+  LD [M]  /home/zfs/zfs-scrub-review-v2/module/zfs.o
+  MODPOST /home/zfs/zfs-scrub-review-v2/module/Module.symvers
+  LD [M]  /home/zfs/zfs-scrub-review-v2/module/spl.ko
+  CC [M]  /home/zfs/zfs-scrub-review-v2/module/zfs.mod.o
+  BTF [M] /home/zfs/zfs-scrub-review-v2/module/spl.ko
+Skipping BTF generation for /home/zfs/zfs-scrub-review-v2/module/spl.ko due to unavailability of vmlinux
+  LD [M]  /home/zfs/zfs-scrub-review-v2/module/zfs.ko
+  BTF [M] /home/zfs/zfs-scrub-review-v2/module/zfs.ko
+Skipping BTF generation for /home/zfs/zfs-scrub-review-v2/module/zfs.ko due to unavailability of vmlinux
+make[3]: Leaving directory '/usr/src/linux-headers-6.1.0-53-cloud-amd64'
+make[2]: Leaving directory '/home/zfs/zfs-scrub-review-v2/module'
+make[2]: Entering directory '/home/zfs/zfs-scrub-review-v2'
+  GEN      gitrev
+  CC       module/icp/algs/modes/libicp_la-gcm.lo
+  CC       module/icp/io/libicp_la-aes.lo
+  CC       tests/zfs-tests/cmd/crypto_test.o
+  CC       module/zfs/libzpool_la-spa_history.lo
+  CCLD     libicp.la
+copying selected object files to avoid basename conflicts...
+  CCLD     libzpool.la
+  CCLD     tests/unit/test_sha2
+  CCLD     raidz_test
+  CCLD     ztest
+  CCLD     zhack
+  CCLD     zdb
+  CCLD     zstream
+  CCLD     tests/zfs-tests/cmd/btree_test
+  CCLD     tests/zfs-tests/cmd/crypto_test
+  CCLD     tests/zfs-tests/cmd/draid
+  CCLD     tests/zfs-tests/cmd/edonr_test
+  CCLD     tests/zfs-tests/cmd/skein_test
+  CCLD     tests/zfs-tests/cmd/sha2_test
+  CCLD     tests/zfs-tests/cmd/blake3_test
+  CCLD     tests/zfs-tests/tests/functional/hkdf/hkdf_test
+SCRIPT_COMMON=scripts/common.sh ./scripts/zfs-tests.sh -c
+make[2]: Leaving directory '/home/zfs/zfs-scrub-review-v2'
+make[1]: Leaving directory '/home/zfs/zfs-scrub-review-v2'

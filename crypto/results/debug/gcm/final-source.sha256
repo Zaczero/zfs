@@ -1,0 +1,3 @@
+053a285cacb46b48eb992cf17ef1334e98cb5effa3a92657b67dc433b7ab1371  module/icp/io/aes.c
+c32fcc802679ae8c7cb11c4537a371290a4bb9c72a994ee1709b7f2881096ff9  module/icp/algs/modes/gcm.c
+a5538fd786bba9d7ae3cc757268591df54c261d1acdeb150e152a4d6d3d4feb5  tests/zfs-tests/cmd/crypto_test.c

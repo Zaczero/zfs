@@ -1,0 +1,32 @@
+#!/bin/sh
+export PATH=/bin
+bb=/bin/busybox
+$bb mount -t proc proc /proc
+$bb mount -t sysfs sysfs /sys
+$bb mount -t devtmpfs devtmpfs /dev
+fail() {
+	echo "VALIDATION_FAIL $*"
+	$bb poweroff -f
+	exit 1
+}
+for module in /modules/*.ko; do
+	test -f "$module" || continue
+	$bb insmod "$module" || fail "driver $module"
+done
+$bb mkdir -p /cache
+$bb mount -t ext4 -o ro /dev/vda /cache || fail mount
+$bb uname -a
+$bb cat /proc/meminfo
+$bb insmod /allocator-bench.ko || fail allocator-bench
+$bb rmmod allocator_bench || fail unload-bench
+for size in 8192 32768 131072 1048576; do
+	for candidate in 0 1; do
+		$bb dd if=/cache/payload of=/dev/null bs=1048576 \
+		    || fail page-cache
+		$bb insmod /allocator-pressure.ko size="$size" \
+		    candidate="$candidate" || fail pressure
+		$bb rmmod allocator_pressure || fail unload-pressure
+	done
+done
+echo VALIDATION_PASS
+exec $bb poweroff -f

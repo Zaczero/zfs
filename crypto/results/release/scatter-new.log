@@ -1,0 +1,22 @@
+ASSERT at tests/zfs-tests/cmd/crypto_test.c:797:decrypt_one()
+VERIFY3U(scattered[out_first + n], ==, 0xa5) failed (76 == 165)
+  PID: 65555     COMM: crypto_test
+  TID: 65555     NAME: crypto_test
+Registers:
+  RAX: 0x0000000000000047  RDX: 0x0000000000000000  RCX: 0x0000000000000000
+  RBX: 0x0000000000000002  RSI: 0x00007fff054677f0  RDI: 0x00007fff05469100
+  RBP: 0x00007fff05469900  RSP: 0x00007fff05469040   R8: 0x0000000000000000
+   R9: 0x0000000000000073  R10: 0x0000000000000000  R11: 0x0000000000000000
+  R12: 0x00007fff054694d0  R13: 0x00007fff05469100  R14: 0x00007fff05469078
+  R15: 0x0000000000000000  RIP: 0x00007f8203f3fac6
+Call trace:
+  [0x00007f8203f3fac6] libspl_backtrace+0x36
+  [0x00007f8203f3fa65] libspl_assertf+0x135
+  [0x000055efe389a6e9] decrypt_one+0x589
+  [0x000055efe389b0a7] run_tests+0x237
+  [0x000055efe389bbd0] run_test_alg_cb+0x60
+  [0x000055efe389aab1] foreach_aes_gcm+0x91
+  [0x000055efe3899cfb] main+0xa2b
+  [0x00007f8203a4524a] __libc_init_first+0x8a
+  [0x00007f8203a45305] __libc_start_main+0x85
+  [0x000055efe3899f71] _start+0x21

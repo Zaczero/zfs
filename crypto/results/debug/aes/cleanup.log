@@ -1,0 +1,2 @@
+avx allocated=192 recorded=0 freed=1 nonzero_at_free=191
+avx2-vaes allocated=256 recorded=0 freed=1 nonzero_at_free=255

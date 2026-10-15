@@ -1,0 +1,4 @@
+gcc -include ./zfs_config.h -include ./include/sys/simd_config.h -I./include -I./include -I./lib/libspl/include -I./lib/libspl/include/os/linux -I./lib/libzpool/include -D_GNU_SOURCE -D_REENTRANT -D_FILE_OFFSET_BITS=64 -D_LARGEFILE64_SOURCE -DLIBEXECDIR=\"/usr/local/libexec\" -DZFSEXECDIR=\"/usr/local/libexec/zfs\" -DRUNSTATEDIR=\"/usr/local/var/run\" -DSBINDIR=\"/usr/local/sbin\" -DSYSCONFDIR=\"/usr/local/etc\" -DPKGDATADIR=\"/usr/local/share/zfs\" -UDEBUG -DNDEBUG  -DTEXT_DOMAIN=\"zfs-linux-user\"   -DDEBUG -UNDEBUG -DZFS_DEBUG \
+    -I./module/icp/include -g -O2 -shared -fPIC \
+    -o /home/zfs/crypto-review/release/scatter_mutant.so /home/zfs/crypto-review//scatter_mutant.c \
+    -ldl

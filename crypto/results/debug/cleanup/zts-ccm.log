@@ -1,0 +1,7 @@
+[2026-10-15T11:50:12.356699] Test: /home/zfs/zfs-scrub-review-v2/tests/zfs-tests/tests/functional/crypto/icp_aes_ccm.ksh (run as root) [00:00] [PASS]
+11:50:12.33 ASSERTION: ICP passes test vectors for AES-CCM
+11:50:12.35 AES-CCM [generic]: tests=552: passed=552 failed=0
+11:50:12.35 AES-CCM [x86_64]: tests=552: passed=552 failed=0
+11:50:12.35 AES-CCM [aesni]: tests=552: passed=552 failed=0
+11:50:12.35 SUCCESS: crypto_test -c /home/zfs/zfs-scrub-review-v2/tests/zfs-tests/tests/functional/crypto/aes_ccm_test.txt
+11:50:12.35 ICP passes test vectors for AES-CCM

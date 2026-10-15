@@ -1,0 +1,24 @@
+[2026-10-15T11:44:20.839958] Test: /home/zfs/zfs-scrub-review-v2/tests/zfs-tests/tests/functional/crypto/icp_aes_gcm.ksh (run as root) [00:00] [PASS]
+11:44:20.80 ASSERTION: ICP passes test vectors for AES-GCM
+11:44:20.83 AES-GCM [generic+generic] [RAW]: tests=316: passed=316 failed=0
+11:44:20.83 AES-GCM [generic+generic] [UIO]: tests=316: passed=316 failed=0
+11:44:20.83 AES-GCM [x86_64+generic] [RAW]: tests=316: passed=316 failed=0
+11:44:20.83 AES-GCM [x86_64+generic] [UIO]: tests=316: passed=316 failed=0
+11:44:20.83 AES-GCM [aesni+generic] [RAW]: tests=316: passed=316 failed=0
+11:44:20.83 AES-GCM [aesni+generic] [UIO]: tests=316: passed=316 failed=0
+11:44:20.83 AES-GCM [generic+pclmulqdq] [RAW]: tests=316: passed=316 failed=0
+11:44:20.83 AES-GCM [generic+pclmulqdq] [UIO]: tests=316: passed=316 failed=0
+11:44:20.83 AES-GCM [x86_64+pclmulqdq] [RAW]: tests=316: passed=316 failed=0
+11:44:20.83 AES-GCM [x86_64+pclmulqdq] [UIO]: tests=316: passed=316 failed=0
+11:44:20.83 AES-GCM [aesni+pclmulqdq] [RAW]: tests=316: passed=316 failed=0
+11:44:20.83 AES-GCM [aesni+pclmulqdq] [UIO]: tests=316: passed=316 failed=0
+11:44:20.83 AES-GCM [x86_64+avx] [RAW]: tests=316: passed=316 failed=0
+11:44:20.83 AES-GCM [x86_64+avx] [UIO]: tests=316: passed=316 failed=0
+11:44:20.83 AES-GCM [aesni+avx] [RAW]: tests=316: passed=316 failed=0
+11:44:20.83 AES-GCM [aesni+avx] [UIO]: tests=316: passed=316 failed=0
+11:44:20.83 AES-GCM [x86_64+avx2-vaes] [RAW]: tests=316: passed=316 failed=0
+11:44:20.83 AES-GCM [x86_64+avx2-vaes] [UIO]: tests=316: passed=316 failed=0
+11:44:20.83 AES-GCM [aesni+avx2-vaes] [RAW]: tests=316: passed=316 failed=0
+11:44:20.83 AES-GCM [aesni+avx2-vaes] [UIO]: tests=316: passed=316 failed=0
+11:44:20.83 SUCCESS: crypto_test -c /home/zfs/zfs-scrub-review-v2/tests/zfs-tests/tests/functional/crypto/aes_gcm_test.txt
+11:44:20.83 ICP passes test vectors for AES-GCM
