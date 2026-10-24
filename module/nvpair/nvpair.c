@@ -466,8 +466,11 @@ nvt_shrink(nvpriv_t *priv)
 	return (nvt_resize(priv, current_size >> 1));
 }
 
+/*
+ * Unpacking matches a new pair by name; removal matches the pair itself.
+ */
 static int
-nvt_remove_nvpair(nvlist_t *nvl, const nvpair_t *nvp)
+nvt_remove_nvpair(nvlist_t *nvl, const nvpair_t *nvp, boolean_t match_name)
 {
 	nvpriv_t *priv = (nvpriv_t *)(uintptr_t)nvl->nvl_priv;
 
@@ -485,7 +488,9 @@ nvt_remove_nvpair(nvlist_t *nvl, const nvpair_t *nvp)
 
 	for (i_nvp_t *prev = NULL, *e = bucket;
 	    e != NULL; prev = e, e = e->nvi_hashtable_next) {
-		if (nvt_nvpair_match(&e->nvi_nvp, nvp, nvl->nvl_nvflag)) {
+		if (match_name ?
+		    nvt_nvpair_match(&e->nvi_nvp, nvp, nvl->nvl_nvflag) :
+		    &e->nvi_nvp == nvp) {
 			if (prev != NULL) {
 				prev->nvi_hashtable_next =
 				    e->nvi_hashtable_next;
@@ -530,7 +535,7 @@ nvt_add_nvpair(nvlist_t *nvl, nvpair_t *nvp, boolean_t check_dup)
 	 * has already removed them passes B_FALSE to skip the search.
 	 */
 	if (check_dup && nvl->nvl_nvflag != 0) {
-		int err = nvt_remove_nvpair(nvl, nvp);
+		int err = nvt_remove_nvpair(nvl, nvp, B_TRUE);
 		if (err != 0)
 			return (err);
 	}
@@ -1002,7 +1007,7 @@ nvlist_remove_nvpair(nvlist_t *nvl, nvpair_t *nvp)
 	if (nvl == NULL || nvp == NULL)
 		return (EINVAL);
 
-	int err = nvt_remove_nvpair(nvl, nvp);
+	int err = nvt_remove_nvpair(nvl, nvp, B_FALSE);
 	if (err != 0)
 		return (err);
 

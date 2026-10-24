@@ -251,6 +251,46 @@ test_nv_nvflag(const MunitParameter params[], void *data)
 	return (MUNIT_OK);
 }
 
+/*
+ * Decoding a unique-name list with a repeated name keeps the older pair on
+ * the pair list but not in the hashtable. Removing it must leave the newer
+ * pair findable.
+ */
+static MunitResult
+test_nv_remove_nvpair_decoded_duplicate(const MunitParameter params[],
+    void *data)
+{
+	(void) params; (void) data;
+
+	nvlist_t *src = nvl_create_type(0);
+	unit_ok(nvlist_add_uint64(src, "same", 11));
+	unit_ok(nvlist_add_uint64(src, "same", 22));
+
+	char *buf = NULL;
+	size_t len = 0;
+	unit_ok(nvlist_pack(src, &buf, &len, NV_ENCODE_NATIVE, KM_SLEEP));
+
+	/* native streams start with a 4-byte header, then the nvlist_t */
+	uint32_t nvflag = NV_UNIQUE_NAME;
+	memcpy(buf + 4 + offsetof(nvlist_t, nvl_nvflag), &nvflag,
+	    sizeof (nvflag));
+
+	nvlist_t *nvl;
+	unit_ok(nvlist_unpack(buf, len, &nvl, KM_SLEEP));
+	unit_eq(nvlist_nvflag(nvl), NV_UNIQUE_NAME);
+
+	unit_ok(nvlist_remove_nvpair(nvl, nvlist_next_nvpair(nvl, NULL)));
+
+	uint64_t value;
+	unit_ok(nvlist_lookup_uint64(nvl, "same", &value));
+	unit_eq(value, 22);
+
+	nvlist_free(nvl);
+	nvlist_free(src);
+	fnvlist_pack_free(buf, len);
+	return (MUNIT_OK);
+}
+
 /* ========== */
 
 /*
@@ -1449,6 +1489,38 @@ test_nv_remove_nvpair(const MunitParameter params[], void *data)
 	return (MUNIT_OK);
 }
 
+static MunitResult
+test_nv_remove_nvpair_duplicate(const MunitParameter params[], void *data)
+{
+	(void) params; (void) data;
+
+	nvlist_t *nvl = nvl_create_type(0);
+	unit_ok(nvlist_add_uint64(nvl, "same", 11));
+	unit_ok(nvlist_add_uint64(nvl, "same", 22));
+	unit_ok(nvlist_add_boolean(nvl, "same"));
+
+	nvpair_t *first = nvlist_next_nvpair(nvl, NULL);
+	unit_notnull(first);
+	unit_ok(nvlist_remove_nvpair(nvl, first));
+
+	nvpair_t *remaining = nvlist_next_nvpair(nvl, NULL);
+	unit_notnull(remaining);
+	uint64_t value;
+	unit_ok(nvpair_value_uint64(remaining, &value));
+	unit_eq(value, 22);
+	unit_eq(fnvlist_num_pairs(nvl), 2);
+	unit_true(nvlist_exists(nvl, "same"));
+
+	unit_ok(nvlist_remove_all(nvl, "same"));
+	unit_false(nvlist_exists(nvl, "same"));
+	unit_true(nvlist_empty(nvl));
+	unit_eq(fnvlist_num_pairs(nvl), 0);
+	unit_null(nvlist_next_nvpair(nvl, NULL));
+
+	nvlist_free(nvl);
+	return (MUNIT_OK);
+}
+
 /* ========== */
 
 /* Re-adding a key to a NV_UNIQUE_NAME nvlist replaces the existing pair. */
@@ -2273,6 +2345,10 @@ static const MunitTest nvpair_tests[] = {
 	    nv_unique_params),
 	UNIT_TEST("nv_remove_nvpair",	test_nv_remove_nvpair,
 	    nv_unique_params),
+	UNIT_TEST("nv_remove_nvpair_duplicate",
+	    test_nv_remove_nvpair_duplicate),
+	UNIT_TEST("nv_remove_nvpair_decoded_duplicate",
+	    test_nv_remove_nvpair_decoded_duplicate),
 
 	/* replace existing pairs, according to config */
 	UNIT_TEST("nv_replace_name",		test_nv_replace_name),
