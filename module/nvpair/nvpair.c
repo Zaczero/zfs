@@ -980,6 +980,8 @@ nvlist_remove_all(nvlist_t *nvl, const char *name)
 	while ((nvp = nvt_lookup_name(nvl, name)) != NULL) {
 		VERIFY0(nvlist_remove_nvpair(nvl, nvp));
 		error = 0;
+		if (nvl->nvl_nvflag & NV_UNIQUE_NAME)
+			break;
 	}
 
 	return (error);
